@@ -2,6 +2,10 @@ package com.thtns.car.service.impl;
 
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -21,6 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import lombok.SneakyThrows;
+import sun.nio.ch.IOUtil;
+
 /**
  * <p>
  * 会员 服务实现类
@@ -37,11 +47,32 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     @Override
     public Page<BizMember> list(ListBizMemberRequest request) {
         Page<BizMember> bizMemberPage = new Page<>(request.getPageNo(), request.getPageSize());
+        LambdaQueryWrapper<BizMember> query = this.getWrapper(request);
+        return page(bizMemberPage, query);
+
+    }
+
+    @Override
+    @SneakyThrows
+    public void export(ListBizMemberRequest request, HttpServletResponse response) {
+        LambdaQueryWrapper<BizMember> query = this.getWrapper(request);
+        List<BizMember> list = list(query);
+        ExcelWriter writer = ExcelUtil.getWriter(true);
+        writer.write(list, true);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment;filename=会员信息.xlsx");
+        ServletOutputStream out = response.getOutputStream();
+        writer.flush(out, true);
+        writer.close();
+        IoUtil.close(out);
+    }
+
+    public LambdaQueryWrapper<BizMember> getWrapper(ListBizMemberRequest request) {
         LambdaQueryWrapper<BizMember> query = Wrappers.lambdaQuery(BizMember.class);
         query.like(StringUtils.hasText(request.getName()), BizMember::getName, request.getName());
         query.like(StringUtils.hasText(request.getPhone()), BizMember::getPhone, request.getPhone());
-        return page(bizMemberPage, query);
-
+        query.orderByDesc(BizMember::getCreateTime);
+        return query;
     }
 
     @Override

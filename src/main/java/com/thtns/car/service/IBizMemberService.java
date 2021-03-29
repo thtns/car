@@ -1,5 +1,7 @@
 package com.thtns.car.service;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.thtns.car.entity.BizMember;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -19,6 +21,8 @@ import com.thtns.car.request.UpdateBizMemberRequest;
 public interface IBizMemberService extends IService<BizMember> {
 
     Page<BizMember> list(ListBizMemberRequest request);
+
+    void export(ListBizMemberRequest request, HttpServletResponse response);
 
     void add(AddBizMemberRequest request);
 

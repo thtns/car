@@ -1,5 +1,7 @@
 package com.thtns.car.controller;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +44,13 @@ public class BizMemberController {
     public R<Page<BizMember>> list(ListBizMemberRequest request) {
         Page<BizMember> list = bizMemberService.list(request);
         return R.ok(list);
+    }
+
+    @GetMapping("export")
+    @ApiOperation(value = "会员数据导出")
+    public R export(ListBizMemberRequest request, HttpServletResponse response) {
+        bizMemberService.export(request, response);
+        return R.ok();
     }
 
     @PostMapping("add")

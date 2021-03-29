@@ -24,6 +24,7 @@
         <hutool.version>5.6.1</hutool.version>
         <swagger.version>3.0.0</swagger.version>
         <mybatisPlus.version>3.4.2</mybatisPlus.version>
+        <poi.version>4.1.2</poi.version>
     </properties>
 
 
@@ -89,6 +90,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
         </dependency>
     </dependencies>
 

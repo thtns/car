@@ -2,4 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.thtns.car.mapper.BizTransactionRecordMapper">
 
+    <select id="exportList" resultType="com.thtns.car.response.bizTrExportResponse">
+
+        select btr.id, bm.name, bm.number_plate, btr.price, btr.type, btr.remark, btr.create_time
+        from biz_transaction_record btr
+        left join biz_member bm on btr.member_id = bm.id
+
+        <where>
+            <if test="request.memberId!=null">
+                and btr.member_id = #{request.memberId}
+            </if>
+            <if test="request.type!=null">
+                and btr.type = #{request.type}
+            </if>
+
+            <if test="request.beginDate != null and request.beginDate != '' and request.endDate != null and request.endDate != ''">
+                AND btr.create_time &gt;= #{request.beginDate}
+                AND btr.create_time &lt;= #{request.endDate}
+            </if>
+
+        </where>
+        order by btr.create_time desc
+    </select>
 </mapper>

@@ -1,5 +1,9 @@
 package com.thtns.car.controller;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,9 +21,12 @@ import com.thtns.car.request.CashRegisterRequest;
 import com.thtns.car.request.ListBizMemberRequest;
 import com.thtns.car.request.ListBizTransactionRecordRequest;
 import com.thtns.car.request.UpdateBizMemberRequest;
+import com.thtns.car.response.LineTrResponse;
+import com.thtns.car.response.PieTrResponse;
 import com.thtns.car.service.IBizTransactionRecordService;
 import com.thtns.car.util.R;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 /**
@@ -32,6 +39,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @RequestMapping("/biz-tr")
+@Api(tags = "交易记录")
 public class BizTransactionRecordController {
 
     private IBizTransactionRecordService transactionRecordService;
@@ -43,11 +51,32 @@ public class BizTransactionRecordController {
         return R.ok(list);
     }
 
+    @GetMapping("export")
+    @ApiOperation(value = "会员数据导出")
+    public R export(ListBizTransactionRecordRequest request, HttpServletResponse response) {
+        transactionRecordService.export(request, response);
+        return R.ok();
+    }
+
     @PutMapping("cashRegister")
     @ApiOperation("交易")
     public R<Void> add(@RequestBody CashRegisterRequest request) {
         transactionRecordService.cashRegister(request);
         return R.ok();
+    }
+
+    @GetMapping("line")
+    @ApiOperation(value = "折线", response = LineTrResponse.class)
+    public R<List<LineTrResponse>> line(ListBizTransactionRecordRequest request) {
+        List<LineTrResponse> line = transactionRecordService.line(request);
+        return R.ok(line);
+    }
+
+    @GetMapping("pie")
+    @ApiOperation(value = "饼图", response = PieTrResponse.class)
+    public R<List<PieTrResponse>> pie(ListBizTransactionRecordRequest request) {
+        List<PieTrResponse> pie = transactionRecordService.pie(request);
+        return R.ok(pie);
     }
 
     @Autowired
