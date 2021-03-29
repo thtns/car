@@ -1,14 +1,12 @@
 package com.thtns.car.entity;
 
-import java.math.BigDecimal;
-
-import com.thtns.car.entity.BaseEntity;
 import com.thtns.car.enums.TransactionTypeEnum;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -36,5 +34,11 @@ public class BizTransactionRecord extends BaseEntity {
 
     @ApiModelProperty(value = "充值类型 1=消费 2=充值")
     private TransactionTypeEnum type;
+
+    @ApiModelProperty(value = "卡ID")
+    private Long cardId;
+
+    @ApiModelProperty(value = "卡类型")
+    private Integer cardType;
 
 }

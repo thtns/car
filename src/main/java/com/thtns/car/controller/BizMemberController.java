@@ -1,28 +1,22 @@
 package com.thtns.car.controller;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
-
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.thtns.car.entity.BizCard;
 import com.thtns.car.entity.BizMember;
 import com.thtns.car.request.AddBizMemberRequest;
 import com.thtns.car.request.CashRegisterRequest;
 import com.thtns.car.request.ListBizMemberRequest;
 import com.thtns.car.request.UpdateBizMemberRequest;
+import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.util.R;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * <p>
@@ -38,11 +32,19 @@ import io.swagger.annotations.ApiOperation;
 public class BizMemberController {
 
     private IBizMemberService bizMemberService;
+    private IBizCardService bizCardService;
 
     @GetMapping("list")
     @ApiOperation(value = "列表", response = BizMember.class)
     public R<Page<BizMember>> list(ListBizMemberRequest request) {
         Page<BizMember> list = bizMemberService.list(request);
+        return R.ok(list);
+    }
+
+    @GetMapping("listCard/{memberId}")
+    @ApiOperation(value = "办理的卡", response = BizCard.class)
+    public R<List<BizCard>> listCard(@PathVariable Long memberId) {
+        List<BizCard> list = bizCardService.listCard(memberId);
         return R.ok(list);
     }
 
@@ -74,15 +76,14 @@ public class BizMemberController {
         return R.ok();
     }
 
-    @PutMapping("reset/{id}")
-    @ApiOperation("重置")
-    public R<Void> reset(@PathVariable Long id) {
-        bizMemberService.reset(id);
-        return R.ok();
-    }
 
     @Autowired
     public void setBizMemberService(IBizMemberService bizMemberService) {
         this.bizMemberService = bizMemberService;
+    }
+
+    @Autowired
+    public void setBizCardService(IBizCardService bizCardService) {
+        this.bizCardService = bizCardService;
     }
 }

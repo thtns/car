@@ -1,19 +1,12 @@
 package com.thtns.car.service.impl;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletResponse;
-
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.thtns.car.entity.BizMember;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.thtns.car.entity.BizCard;
 import com.thtns.car.entity.BizTransactionRecord;
 import com.thtns.car.enums.TransactionTypeEnum;
 import com.thtns.car.helper.ServiceException;
@@ -23,17 +16,21 @@ import com.thtns.car.request.ListBizTransactionRecordRequest;
 import com.thtns.car.response.LineTrResponse;
 import com.thtns.car.response.PieTrResponse;
 import com.thtns.car.response.bizTrExportResponse;
+import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.service.IBizTransactionRecordService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import cn.hutool.poi.excel.ExcelUtil;
-import cn.hutool.poi.excel.ExcelWriter;
+import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -48,6 +45,8 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
         implements IBizTransactionRecordService {
 
     private IBizMemberService bizMemberService;
+
+    private IBizCardService bizCardService;
 
     @Override
     public Page<BizTransactionRecord> list(ListBizTransactionRecordRequest request) {
@@ -124,6 +123,7 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
 
         list.forEach(biztr -> biztr.setType(TransactionTypeEnum.parse(Integer.valueOf(biztr.getType())).toString()));
 
+        // TODO
         ExcelWriter writer = ExcelUtil.getWriter("/Users/ifugle/record.xlsx");
         writer.merge(7, "交易记录");
         writer.write(list, true);
@@ -135,17 +135,20 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
     @Transactional(rollbackFor = Exception.class)
     public void cashRegister(CashRegisterRequest request) {
         BizTransactionRecord transactionRecord = new BizTransactionRecord();
-        if (request.getMemberId() != null) {
-            BizMember member = bizMemberService.getById(request.getMemberId());
+        if (request.getCardId() != null) {
+
+
+            BizCard bizCard = bizCardService.getById(request.getCardId());
+
             BigDecimal cashPrice = new BigDecimal(request.getPrice());
             //消费金额大于卡内余额
-            if (cashPrice.compareTo(member.getBalance()) == 1) {
+            if (cashPrice.compareTo(bizCard.getBalance()) == 1) {
                 throw new ServiceException(5001, "卡内余额不足,请充值");
             }
             //扣除金额
             transactionRecord.setMemberId(request.getMemberId());
-            member.setBalance(member.getBalance().subtract(cashPrice));
-            bizMemberService.updateById(member);
+            bizCard.setBalance(bizCard.getBalance().subtract(cashPrice));
+            bizCardService.updateById(bizCard);
 
         }
         transactionRecord.setRemark(request.getRemark());
@@ -161,11 +164,18 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
                 StringUtils.hasText(request.getPrice()) ? new BigDecimal(request.getPrice()) : new BigDecimal("0.00"));
         record.setType(TransactionTypeEnum.recharge);
         record.setMemberId(request.getMemberId());
+        record.setCardId(request.getCardId());
+        record.setCardType(request.getCardType());
         save(record);
     }
 
     @Autowired
     public void setBizMemberService(IBizMemberService bizMemberService) {
         this.bizMemberService = bizMemberService;
+    }
+
+    @Autowired
+    public void setBizCardService(IBizCardService bizCardService) {
+        this.bizCardService = bizCardService;
     }
 }

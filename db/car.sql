@@ -10,7 +10,7 @@ create table biz_member
     create_time  datetime       default CURRENT_TIMESTAMP null comment '创建时间',
     update_time  datetime                                 null on update CURRENT_TIMESTAMP comment '更新时间'
 )
-    comment '会员' auto_increment = 10000 ;
+    comment '会员' auto_increment = 10000;
 
 create table biz_transaction_record
 (
@@ -23,4 +23,4 @@ create table biz_transaction_record
     create_time datetime       default CURRENT_TIMESTAMP null comment '创建时间',
     update_time datetime                                 null on update CURRENT_TIMESTAMP comment '更新时间'
 )
-    comment '交易记录' auto_increment = 10000 ;
+    comment '交易记录' auto_increment = 10000;

@@ -1,7 +1,5 @@
 package com.thtns.car.request;
 
-import java.math.BigDecimal;
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -20,9 +18,8 @@ public class AddBizMemberRequest {
     @ApiModelProperty(value = "手机号码")
     private String phone;
 
-    @ApiModelProperty(value = "卡内余额")
-    private String balance;
 
-    @ApiModelProperty(value = "会员类型")
-    private Integer type;
+    @ApiModelProperty("业务卡种类")
+    private AddBizCardRequest cardRequest;
+
 }

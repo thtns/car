@@ -1,10 +1,5 @@
 package com.thtns.car.entity;
 
-import java.math.BigDecimal;
-
-import com.thtns.car.entity.BaseEntity;
-import com.thtns.car.enums.UserTypeEnum;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -33,11 +28,5 @@ public class BizMember extends BaseEntity {
 
     @ApiModelProperty(value = "手机号码")
     private String phone;
-
-    @ApiModelProperty(value = "卡内余额")
-    private BigDecimal balance;
-
-    @ApiModelProperty(value = "会员类型 0=会员 1=散客")
-    private Integer type;
 
 }
