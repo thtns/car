@@ -17,6 +17,7 @@
 package com.thtns.car.util;
 
 import com.thtns.car.constant.CommonConstants;
+
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -26,6 +27,7 @@ import java.io.Serializable;
  * 响应信息主体
  *
  * @param <T>
+ *
  * @author lengleng
  */
 @ToString
@@ -66,6 +68,10 @@ public class R<T> implements Serializable {
 
     public static <T> R<T> failed(String msg) {
         return restResult(null, CommonConstants.FAIL, msg);
+    }
+
+    public static <T> R<T> failed(int code, String msg) {
+        return restResult(null, code, msg);
     }
 
     public static <T> R<T> failed(T data) {
