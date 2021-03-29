@@ -3,6 +3,7 @@ package com.thtns.car.entity;
 import java.math.BigDecimal;
 
 import com.thtns.car.entity.BaseEntity;
+import com.thtns.car.enums.UserTypeEnum;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

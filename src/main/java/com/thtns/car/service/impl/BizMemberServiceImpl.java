@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.thtns.car.entity.BizMember;
+import com.thtns.car.enums.UserTypeEnum;
 import com.thtns.car.mapper.BizMemberMapper;
 import com.thtns.car.request.AddBizMemberRequest;
 import com.thtns.car.request.CashRegisterRequest;
@@ -85,7 +86,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         bizMember.setBalance(StringUtils.hasText(request.getBalance()) ?
                 new BigDecimal(request.getBalance()) :
                 new BigDecimal("0.00"));
-        bizMember.setType(request.getType() != null ? request.getType() : 1);
+        bizMember.setType(request.getType() != null ? request.getType() : UserTypeEnum.ordinary.getValue());
         save(bizMember);
 
         if (StringUtils.hasText(request.getBalance())) {
@@ -104,7 +105,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         member.setPhone(request.getPhone());
         member.setNumberPlate(request.getNumberPlate());
         member.setBalance(new BigDecimal(request.getBalance()));
-        member.setType(request.getType());
+        member.setType(UserTypeEnum.parse(request.getType()).getValue());
         updateById(member);
     }
 
