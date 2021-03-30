@@ -7,7 +7,7 @@ import lombok.Data;
  * @author : liuyj
  */
 @Data
-public class CashRegisterRequest {
+public class TransactionRequest {
 
     @ApiModelProperty("会员ID")
     private Long memberId;
@@ -17,11 +17,5 @@ public class CashRegisterRequest {
 
     @ApiModelProperty("卡ID")
     private Long cardId;
-
-    @ApiModelProperty("卡类型")
-    private Integer cardType;
-
-    @ApiModelProperty("备注")
-    private String remark;
 
 }

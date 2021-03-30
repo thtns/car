@@ -4,18 +4,23 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.thtns.car.entity.BizCard;
 import com.thtns.car.entity.BizMember;
 import com.thtns.car.request.AddBizMemberRequest;
+import com.thtns.car.request.ApplyCardRequest;
 import com.thtns.car.request.CashRegisterRequest;
 import com.thtns.car.request.ListBizMemberRequest;
+import com.thtns.car.request.TransactionRequest;
 import com.thtns.car.request.UpdateBizMemberRequest;
 import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.util.R;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+
 import java.util.List;
 
 /**
@@ -76,6 +81,26 @@ public class BizMemberController {
         return R.ok();
     }
 
+    @PutMapping("applyCard")
+    @ApiOperation("办卡")
+    public R<Void> applyCard(@RequestBody ApplyCardRequest request) {
+        bizMemberService.applyCard(request);
+        return R.ok();
+    }
+
+    @PutMapping("transaction")
+    @ApiOperation("扣费")
+    public R<Void> add(@RequestBody TransactionRequest request) {
+        bizMemberService.transaction(request);
+        return R.ok();
+    }
+
+    @GetMapping("getCarName/{name}")
+    @ApiOperation(value = "列表", response = String.class)
+    public R<List<String>> getCarName(@PathVariable String name) {
+        List<String> list = bizMemberService.getCarName(name);
+        return R.ok(list);
+    }
 
     @Autowired
     public void setBizMemberService(IBizMemberService bizMemberService) {

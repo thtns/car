@@ -23,9 +23,6 @@ public class UpdateBizMemberRequest {
     @ApiModelProperty(value = "手机号码")
     private String phone;
 
-    @ApiModelProperty(value = "卡内余额")
-    private String balance;
-
-    @ApiModelProperty(value = "会员类型")
-    private Integer type;
+    @ApiModelProperty(value = "车型名称")
+    private String carName;
 }

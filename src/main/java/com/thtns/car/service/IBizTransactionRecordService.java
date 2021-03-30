@@ -33,8 +33,4 @@ public interface IBizTransactionRecordService extends IService<BizTransactionRec
 
     void export(ListBizTransactionRecordRequest request, HttpServletResponse response);
 
-    void cashRegister(CashRegisterRequest request);
-
-    void recharge(CashRegisterRequest request);
-
 }

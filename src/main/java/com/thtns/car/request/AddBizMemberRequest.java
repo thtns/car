@@ -18,6 +18,8 @@ public class AddBizMemberRequest {
     @ApiModelProperty(value = "手机号码")
     private String phone;
 
+    @ApiModelProperty(value = "车型名称")
+    private String carName;
 
     @ApiModelProperty("业务卡种类")
     private AddBizCardRequest cardRequest;

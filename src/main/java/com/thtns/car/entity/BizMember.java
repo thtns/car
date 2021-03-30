@@ -29,4 +29,7 @@ public class BizMember extends BaseEntity {
     @ApiModelProperty(value = "手机号码")
     private String phone;
 
+    @ApiModelProperty(value = "车型名称")
+    private String carName;
+
 }

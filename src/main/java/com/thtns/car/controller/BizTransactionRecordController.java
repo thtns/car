@@ -58,12 +58,6 @@ public class BizTransactionRecordController {
         return R.ok();
     }
 
-    @PutMapping("cashRegister")
-    @ApiOperation("交易")
-    public R<Void> add(@RequestBody CashRegisterRequest request) {
-        transactionRecordService.cashRegister(request);
-        return R.ok();
-    }
 
     @GetMapping("line")
     @ApiOperation(value = "折线", response = LineTrResponse.class)

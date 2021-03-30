@@ -131,43 +131,9 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
 
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void cashRegister(CashRegisterRequest request) {
-        BizTransactionRecord transactionRecord = new BizTransactionRecord();
-        if (request.getCardId() != null) {
 
 
-            BizCard bizCard = bizCardService.getById(request.getCardId());
 
-            BigDecimal cashPrice = new BigDecimal(request.getPrice());
-            //消费金额大于卡内余额
-            if (cashPrice.compareTo(bizCard.getBalance()) == 1) {
-                throw new ServiceException(5001, "卡内余额不足,请充值");
-            }
-            //扣除金额
-            transactionRecord.setMemberId(request.getMemberId());
-            bizCard.setBalance(bizCard.getBalance().subtract(cashPrice));
-            bizCardService.updateById(bizCard);
-
-        }
-        transactionRecord.setRemark(request.getRemark());
-        transactionRecord.setPrice(new BigDecimal(request.getPrice()));
-        transactionRecord.setType(TransactionTypeEnum.consumption);
-        save(transactionRecord);
-    }
-
-    @Override
-    public void recharge(CashRegisterRequest request) {
-        BizTransactionRecord record = new BizTransactionRecord();
-        record.setPrice(
-                StringUtils.hasText(request.getPrice()) ? new BigDecimal(request.getPrice()) : new BigDecimal("0.00"));
-        record.setType(TransactionTypeEnum.recharge);
-        record.setMemberId(request.getMemberId());
-        record.setCardId(request.getCardId());
-        record.setCardType(request.getCardType());
-        save(record);
-    }
 
     @Autowired
     public void setBizMemberService(IBizMemberService bizMemberService) {
