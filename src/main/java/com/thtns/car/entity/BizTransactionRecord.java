@@ -1,6 +1,7 @@
 package com.thtns.car.entity;
 
 import com.thtns.car.enums.TransactionTypeEnum;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -33,7 +34,7 @@ public class BizTransactionRecord extends BaseEntity {
     private String remark;
 
     @ApiModelProperty(value = "充值类型 1=消费 2=充值")
-    private TransactionTypeEnum type;
+    private Integer type;
 
     @ApiModelProperty(value = "卡ID")
     private Long cardId;

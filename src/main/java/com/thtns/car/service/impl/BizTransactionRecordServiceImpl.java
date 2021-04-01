@@ -2,11 +2,14 @@ package com.thtns.car.service.impl;
 
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.thtns.car.entity.BizCard;
+import com.thtns.car.entity.BizMember;
 import com.thtns.car.entity.BizTransactionRecord;
 import com.thtns.car.enums.TransactionTypeEnum;
 import com.thtns.car.helper.ServiceException;
@@ -14,22 +17,27 @@ import com.thtns.car.mapper.BizTransactionRecordMapper;
 import com.thtns.car.request.CashRegisterRequest;
 import com.thtns.car.request.ListBizTransactionRecordRequest;
 import com.thtns.car.response.LineTrResponse;
+import com.thtns.car.response.ListBizTrResponse;
 import com.thtns.car.response.PieTrResponse;
 import com.thtns.car.response.bizTrExportResponse;
 import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.service.IBizTransactionRecordService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -49,14 +57,44 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
     private IBizCardService bizCardService;
 
     @Override
-    public Page<BizTransactionRecord> list(ListBizTransactionRecordRequest request) {
+    public IPage<ListBizTrResponse> list(ListBizTransactionRecordRequest request) {
 
         Page<BizTransactionRecord> page = new Page<>(request.getPageNo(), request.getPageSize());
         LambdaQueryWrapper<BizTransactionRecord> query = Wrappers.lambdaQuery(BizTransactionRecord.class);
         query.eq(request.getMemberId() != null, BizTransactionRecord::getMemberId, request.getMemberId());
         query.eq(request.getType() != null, BizTransactionRecord::getType, request.getType());
         query.orderByDesc(BizTransactionRecord::getCreateTime);
-        return page(page, query);
+
+        Page<BizTransactionRecord> recordPage = page(page, query);
+
+        List<Long> collect = recordPage.getRecords().stream().map(BizTransactionRecord::getMemberId).distinct()
+                .collect(Collectors.toList());
+
+        List<BizMember> bizMembers = bizMemberService.listByIds(collect);
+
+        Function<BizTransactionRecord, ListBizTrResponse> convert = t -> {
+            ListBizTrResponse listBizTrResponse = new ListBizTrResponse();
+            listBizTrResponse.setId(t.getId());
+            listBizTrResponse.setMemberId(t.getMemberId());
+            listBizTrResponse.setType(String.valueOf(t.getType()));
+            listBizTrResponse.setPrice(String.valueOf(t.getPrice()));
+            listBizTrResponse.setRemark(t.getRemark());
+            return listBizTrResponse;
+        };
+
+        IPage<ListBizTrResponse> responseIPage = recordPage.convert(convert);
+
+        responseIPage.getRecords().forEach(l -> bizMembers.forEach(b -> {
+            if (l.getMemberId().equals(b.getId())) {
+                l.setName(b.getName());
+                l.setNumberPlate(b.getNumberPlate());
+                l.setPhone(b.getPhone());
+            }
+
+        }));
+
+        return responseIPage;
+
     }
 
     @Override
@@ -76,12 +114,29 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
 
             LineTrResponse lineTrResponse = new LineTrResponse();
 
-            BigDecimal reduce = v.stream().map(BizTransactionRecord::getPrice)
-                    .reduce(new BigDecimal("0.00"), BigDecimal::add);
+            Map<Integer, List<BizTransactionRecord>> typeCollect = v.stream()
+                    .collect(Collectors.groupingBy(BizTransactionRecord::getType));
+
+            HashMap<LocalDate, BigDecimal> profit = new HashMap<>();
+            HashMap<LocalDate, BigDecimal> consumption = new HashMap<>();
+
+            typeCollect.forEach((kt, vt) -> {
+
+                if (1 == kt) {
+                    BigDecimal reduce = vt.stream().map(BizTransactionRecord::getPrice)
+                            .reduce(new BigDecimal("0.00"), BigDecimal::add);
+                    consumption.put(k, reduce);
+                }
+                if (2 == kt) {
+                    BigDecimal reduce = vt.stream().map(BizTransactionRecord::getPrice)
+                            .reduce(new BigDecimal("0.00"), BigDecimal::add);
+                    profit.put(k, reduce);
+                }
+            });
 
             lineTrResponse.setDate(k.toString());
-            lineTrResponse.setProfit(reduce.toString());
-
+            lineTrResponse.setProfit(profit.get(k) != null ? profit.get(k).toString() : "0.00");
+            lineTrResponse.setConsumption(consumption.get(k) != null ? consumption.get(k).toString() : "0.00");
             lineTrResponses.add(lineTrResponse);
         });
 
@@ -96,7 +151,7 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
 
         List<BizTransactionRecord> list = list(query);
 
-        Map<TransactionTypeEnum, List<BizTransactionRecord>> collect = list.stream()
+        Map<Integer, List<BizTransactionRecord>> collect = list.stream()
                 .collect(Collectors.groupingBy(BizTransactionRecord::getType));
 
         ArrayList<PieTrResponse> pieTrResponses = new ArrayList<>();
@@ -130,10 +185,6 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
         writer.close();
 
     }
-
-
-
-
 
     @Autowired
     public void setBizMemberService(IBizMemberService bizMemberService) {

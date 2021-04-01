@@ -9,7 +9,7 @@
         from biz_member
         where car_name is not null
 
-        <if test="name!=null and name !='">
+        <if test="name!=null and name !=''">
             AND car_name LIKE concat('%', #{name},'%')
         </if>
 

@@ -7,7 +7,7 @@ import lombok.Data;
 public class AddBizCardRequest {
 
     @ApiModelProperty(value = "类型")
-    private Integer type;
+    private Integer cardType;
 
     @ApiModelProperty(value = "金额")
     private String balance;

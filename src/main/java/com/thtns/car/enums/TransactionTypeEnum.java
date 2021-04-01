@@ -41,9 +41,4 @@ public enum TransactionTypeEnum implements IEnum<Integer> {
         return this.code;
     }
 
-    @Override
-    public String toString() {
-        return this.desc;
-    }
-
 }

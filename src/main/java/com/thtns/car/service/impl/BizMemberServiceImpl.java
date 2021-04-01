@@ -97,13 +97,13 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         if (request.getCardRequest() != null) {
             BizCard card = new BizCard();
 
-            if (CardTypeEnum.year.getValue().equals(request.getCardRequest().getType())) {
+            if (CardTypeEnum.year.getValue().equals(request.getCardRequest().getCardType())) {
                 card.setType(CardTypeEnum.year.getValue());
                 card.setValidDate(LocalDateTime.now().plusYears(1).toLocalDate());
                 card.setMemberId(bizMember.getId());
                 bizCardService.save(card);
             }
-            if (CardTypeEnum.num.getValue().equals(request.getCardRequest().getType())) {
+            if (CardTypeEnum.num.getValue().equals(request.getCardRequest().getCardType())) {
                 card.setType(CardTypeEnum.num.getValue());
                 card.setValidDate(LocalDateTime.now().plusYears(1).toLocalDate());
                 card.setNum(request.getCardRequest().getNum());
@@ -114,11 +114,11 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setMemberId(bizMember.getId());
                 record.setCardId(card.getId());
                 record.setCardType(CardTypeEnum.num.getValue());
-                record.setType(TransactionTypeEnum.recharge);
+                record.setType(TransactionTypeEnum.recharge.getValue());
                 transactionRecordService.save(record);
 
             }
-            if (CardTypeEnum.stored.getValue().equals(request.getCardRequest().getType())) {
+            if (CardTypeEnum.stored.getValue().equals(request.getCardRequest().getCardType())) {
                 BigDecimal balance = StringUtils.hasText(request.getCardRequest().getBalance()) ?
                         new BigDecimal(request.getCardRequest().getBalance()) :
                         new BigDecimal("0.00");
@@ -199,7 +199,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             record.setMemberId(request.getMemberId());
             record.setCardId(card.getId());
             record.setCardType(CardTypeEnum.num.getValue());
-            record.setType(TransactionTypeEnum.recharge);
+            record.setType(TransactionTypeEnum.recharge.getValue());
             transactionRecordService.save(record);
 
         }

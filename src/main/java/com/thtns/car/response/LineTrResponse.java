@@ -9,10 +9,13 @@ import lombok.Data;
 @Data
 public class LineTrResponse {
 
-    @ApiModelProperty("盈利")
+    @ApiModelProperty("充钱")
     private String profit;
 
     @ApiModelProperty("日期")
     private String date;
+
+    @ApiModelProperty("消费")
+    private String consumption;
 
 }

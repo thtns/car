@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.thtns.car.entity.BizMember;
 import com.thtns.car.entity.BizTransactionRecord;
@@ -22,6 +23,7 @@ import com.thtns.car.request.ListBizMemberRequest;
 import com.thtns.car.request.ListBizTransactionRecordRequest;
 import com.thtns.car.request.UpdateBizMemberRequest;
 import com.thtns.car.response.LineTrResponse;
+import com.thtns.car.response.ListBizTrResponse;
 import com.thtns.car.response.PieTrResponse;
 import com.thtns.car.service.IBizTransactionRecordService;
 import com.thtns.car.util.R;
@@ -46,8 +48,8 @@ public class BizTransactionRecordController {
 
     @GetMapping("list")
     @ApiOperation(value = "列表", response = BizTransactionRecord.class)
-    public R<Page<BizTransactionRecord>> list(ListBizTransactionRecordRequest request) {
-        Page<BizTransactionRecord> list = transactionRecordService.list(request);
+    public R<IPage<ListBizTrResponse>> list(ListBizTransactionRecordRequest request) {
+        IPage<ListBizTrResponse> list = transactionRecordService.list(request);
         return R.ok(list);
     }
 
