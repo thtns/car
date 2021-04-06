@@ -67,6 +67,7 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
         LambdaQueryWrapper<BizTransactionRecord> query = Wrappers.lambdaQuery(BizTransactionRecord.class);
         query.eq(request.getMemberId() != null, BizTransactionRecord::getMemberId, request.getMemberId());
         query.eq(request.getType() != null, BizTransactionRecord::getType, request.getType());
+        query.eq(request.getCardType() != null, BizTransactionRecord::getCardType, request.getCardType());
         query.orderByDesc(BizTransactionRecord::getCreateTime);
 
         Page<BizTransactionRecord> recordPage = page(page, query);
@@ -82,7 +83,8 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
             listBizTrResponse.setMemberId(t.getMemberId());
             listBizTrResponse.setType(String.valueOf(t.getType()));
             listBizTrResponse.setPrice(String.valueOf(t.getPrice()));
-
+            listBizTrResponse.setCardId(t.getCardId());
+            listBizTrResponse.setCardType(t.getCardType());
             boolean present = Optional.ofNullable(t.getTradeTime()).isPresent();
             if (present) {
                 listBizTrResponse.setTradeTime(

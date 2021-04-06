@@ -17,6 +17,9 @@ public class ListBizTransactionRecordRequest extends PageRequest {
     @ApiModelProperty("交易类型")
     private Integer type;
 
+    @ApiModelProperty("办卡类型")
+    private Integer cardType;
+
     @ApiModelProperty("开始时间")
     private String beginDate;
     @ApiModelProperty("结束时间")

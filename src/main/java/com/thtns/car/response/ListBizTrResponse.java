@@ -19,4 +19,6 @@ public class ListBizTrResponse {
     private String phone;
     private String updateTime;
     private String tradeTime;
+    private Integer cardType;
+    private Long cardId;
 }
