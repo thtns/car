@@ -35,6 +35,7 @@ import com.thtns.car.response.bizTrExportResponse;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.service.IBizTransactionRecordService;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
@@ -68,48 +69,52 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
         List<Long> collect = recordPage.getRecords().stream().map(BizTransactionRecord::getMemberId).distinct()
                 .collect(Collectors.toList());
 
-        List<BizMember> bizMembers = bizMemberService.listByIds(collect);
+        if (CollUtil.isNotEmpty(collect)) {
+            List<BizMember> bizMembers = bizMemberService.listByIds(collect);
 
-        Function<BizTransactionRecord, ListBizTrResponse> convert = t -> {
-            ListBizTrResponse listBizTrResponse = new ListBizTrResponse();
-            listBizTrResponse.setId(t.getId());
-            listBizTrResponse.setMemberId(t.getMemberId());
-            listBizTrResponse.setType(String.valueOf(t.getType()));
-            listBizTrResponse.setPrice(String.valueOf(t.getPrice()));
-            listBizTrResponse.setCardId(t.getCardId());
-            listBizTrResponse.setCardType(t.getCardType());
-            boolean present = Optional.ofNullable(t.getTradeTime()).isPresent();
-            if (present) {
-                listBizTrResponse.setTradeTime(
-                        t.getTradeTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
-            }
-            boolean create = Optional.ofNullable(t.getCreateTime()).isPresent();
-            if (create) {
-                listBizTrResponse.setCreateTime(
-                        t.getCreateTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
-            }
-            boolean update = Optional.ofNullable(t.getUpdateTime()).isPresent();
-            if (update) {
-                listBizTrResponse.setUpdateTime(
-                        t.getCreateTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
-            }
+            Function<BizTransactionRecord, ListBizTrResponse> convert = t -> {
+                ListBizTrResponse listBizTrResponse = new ListBizTrResponse();
+                listBizTrResponse.setId(t.getId());
+                listBizTrResponse.setMemberId(t.getMemberId());
+                listBizTrResponse.setType(String.valueOf(t.getType()));
+                listBizTrResponse.setPrice(String.valueOf(t.getPrice()));
+                listBizTrResponse.setCardId(t.getCardId());
+                listBizTrResponse.setCardType(t.getCardType());
+                boolean present = Optional.ofNullable(t.getTradeTime()).isPresent();
+                if (present) {
+                    listBizTrResponse.setTradeTime(
+                            t.getTradeTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+                }
+                boolean create = Optional.ofNullable(t.getCreateTime()).isPresent();
+                if (create) {
+                    listBizTrResponse.setCreateTime(
+                            t.getCreateTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+                }
+                boolean update = Optional.ofNullable(t.getUpdateTime()).isPresent();
+                if (update) {
+                    listBizTrResponse.setUpdateTime(
+                            t.getCreateTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+                }
 
-            listBizTrResponse.setRemark(t.getRemark());
-            return listBizTrResponse;
-        };
+                listBizTrResponse.setRemark(t.getRemark());
+                return listBizTrResponse;
+            };
 
-        IPage<ListBizTrResponse> responseIPage = recordPage.convert(convert);
+            IPage<ListBizTrResponse> responseIPage = recordPage.convert(convert);
 
-        responseIPage.getRecords().forEach(l -> bizMembers.forEach(b -> {
-            if (l.getMemberId().equals(b.getId())) {
-                l.setName(b.getName());
-                l.setNumberPlate(b.getNumberPlate());
-                l.setPhone(b.getPhone());
-            }
+            responseIPage.getRecords().forEach(l -> bizMembers.forEach(b -> {
+                if (l.getMemberId().equals(b.getId())) {
+                    l.setName(b.getName());
+                    l.setNumberPlate(b.getNumberPlate());
+                    l.setPhone(b.getPhone());
+                }
 
-        }));
+            }));
 
-        return responseIPage;
+            return responseIPage;
+        }
+
+        return null;
 
     }
 

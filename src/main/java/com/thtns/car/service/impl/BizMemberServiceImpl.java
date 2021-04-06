@@ -132,6 +132,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCardId(card.getId());
                 record.setCardType(CardTypeEnum.stored.getValue());
                 record.setPrice(balance);
+                record.setType(TransactionTypeEnum.recharge.getValue());
                 transactionRecordService.save(record);
 
             }
