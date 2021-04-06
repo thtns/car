@@ -1,17 +1,8 @@
 package com.thtns.car.service.impl;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -23,20 +14,21 @@ import com.thtns.car.enums.CardTypeEnum;
 import com.thtns.car.enums.TransactionTypeEnum;
 import com.thtns.car.helper.ServiceException;
 import com.thtns.car.mapper.BizMemberMapper;
-import com.thtns.car.request.AddBizMemberRequest;
-import com.thtns.car.request.ApplyCardRequest;
-import com.thtns.car.request.CashRegisterRequest;
-import com.thtns.car.request.ListBizMemberRequest;
-import com.thtns.car.request.TransactionRequest;
-import com.thtns.car.request.UpdateBizMemberRequest;
+import com.thtns.car.request.*;
 import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.service.IBizTransactionRecordService;
-
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.poi.excel.ExcelUtil;
-import cn.hutool.poi.excel.ExcelWriter;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -223,6 +215,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             record.setCardType(CardTypeEnum.stored.getValue());
             record.setPrice(balance);
             record.setTradeTime(LocalDateTime.now());
+            record.setType(TransactionTypeEnum.recharge.getValue());
             transactionRecordService.save(record);
 
         }
@@ -240,7 +233,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 BigDecimal cashPrice = new BigDecimal(request.getPrice());
                 //消费金额大于卡内余额
                 if (cashPrice.compareTo(bizCard.getBalance()) == 1) {
-                    throw new ServiceException(5001, "卡内余额不足,请充值");
+                    throw new ServiceException("卡内余额不足,请充值");
                 }
                 //扣除金额
                 bizCard.setBalance(bizCard.getBalance().subtract(cashPrice));
@@ -269,7 +262,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 BizTransactionRecord record = new BizTransactionRecord();
                 record.setMemberId(request.getMemberId());
                 record.setCardId(bizCard.getId());
-                record.setCardType(CardTypeEnum.stored.getValue());
+                record.setCardType(CardTypeEnum.num.getValue());
                 record.setTradeTime(LocalDateTime.now());
                 transactionRecordService.save(record);
             }
