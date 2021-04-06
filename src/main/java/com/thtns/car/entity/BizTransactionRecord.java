@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -41,5 +42,8 @@ public class BizTransactionRecord extends BaseEntity {
 
     @ApiModelProperty(value = "卡类型")
     private Integer cardType;
+
+    @ApiModelProperty(value = "交易时间")
+    private LocalDateTime tradeTime;
 
 }

@@ -1,5 +1,6 @@
 package com.thtns.car.service.impl;
 
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 
@@ -33,10 +34,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -53,8 +57,6 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
         implements IBizTransactionRecordService {
 
     private IBizMemberService bizMemberService;
-
-    private IBizCardService bizCardService;
 
     @Override
     public IPage<ListBizTrResponse> list(ListBizTransactionRecordRequest request) {
@@ -78,6 +80,23 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
             listBizTrResponse.setMemberId(t.getMemberId());
             listBizTrResponse.setType(String.valueOf(t.getType()));
             listBizTrResponse.setPrice(String.valueOf(t.getPrice()));
+
+            boolean present = Optional.ofNullable(t.getTradeTime()).isPresent();
+            if (present) {
+                listBizTrResponse.setTradeTime(
+                        t.getTradeTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+            }
+            boolean create = Optional.ofNullable(t.getCreateTime()).isPresent();
+            if (create) {
+                listBizTrResponse.setCreateTime(
+                        t.getCreateTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+            }
+            boolean update = Optional.ofNullable(t.getUpdateTime()).isPresent();
+            if (update) {
+                listBizTrResponse.setUpdateTime(
+                        t.getCreateTime().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+            }
+
             listBizTrResponse.setRemark(t.getRemark());
             return listBizTrResponse;
         };
@@ -191,8 +210,4 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
         this.bizMemberService = bizMemberService;
     }
 
-    @Autowired
-    public void setBizCardService(IBizCardService bizCardService) {
-        this.bizCardService = bizCardService;
-    }
 }

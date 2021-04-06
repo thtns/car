@@ -17,4 +17,6 @@ public class ListBizTrResponse {
     private String remark;
     private String createTime;
     private String phone;
+    private String updateTime;
+    private String tradeTime;
 }

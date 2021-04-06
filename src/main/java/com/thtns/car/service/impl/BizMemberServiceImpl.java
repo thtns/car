@@ -166,6 +166,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCardId(bizCard.getId());
                 record.setCardType(CardTypeEnum.stored.getValue());
                 record.setPrice(price);
+                record.setTradeTime(LocalDateTime.now());
                 transactionRecordService.save(record);
             }
         }
@@ -178,6 +179,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void applyCard(ApplyCardRequest request) {
 
         BizCard card = new BizCard();
@@ -200,6 +202,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             record.setCardId(card.getId());
             record.setCardType(CardTypeEnum.num.getValue());
             record.setType(TransactionTypeEnum.recharge.getValue());
+            record.setTradeTime(LocalDateTime.now());
             transactionRecordService.save(record);
 
         }
@@ -218,6 +221,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             record.setCardId(card.getId());
             record.setCardType(CardTypeEnum.stored.getValue());
             record.setPrice(balance);
+            record.setTradeTime(LocalDateTime.now());
             transactionRecordService.save(record);
 
         }
@@ -247,6 +251,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCardId(bizCard.getId());
                 record.setCardType(CardTypeEnum.stored.getValue());
                 record.setPrice(cashPrice);
+                record.setTradeTime(LocalDateTime.now());
                 transactionRecordService.save(record);
 
             }
@@ -264,6 +269,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setMemberId(request.getMemberId());
                 record.setCardId(bizCard.getId());
                 record.setCardType(CardTypeEnum.stored.getValue());
+                record.setTradeTime(LocalDateTime.now());
                 transactionRecordService.save(record);
             }
 
