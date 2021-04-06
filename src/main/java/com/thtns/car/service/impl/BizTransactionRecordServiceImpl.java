@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.thtns.car.entity.BaseEntity;
 import com.thtns.car.entity.BizCard;
 import com.thtns.car.entity.BizMember;
 import com.thtns.car.entity.BizTransactionRecord;
@@ -37,6 +38,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,7 +124,6 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
         LambdaQueryWrapper<BizTransactionRecord> query = Wrappers.lambdaQuery(BizTransactionRecord.class);
         query.between(StringUtils.hasText(request.getBeginDate()) && StringUtils.hasText(request.getEndDate()),
                 BizTransactionRecord::getCreateTime, request.getBeginDate(), request.getEndDate());
-
         List<BizTransactionRecord> list = list(query);
 
         Map<LocalDate, List<BizTransactionRecord>> collect = list.stream()
@@ -159,7 +160,8 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
             lineTrResponses.add(lineTrResponse);
         });
 
-        return lineTrResponses;
+        return lineTrResponses.stream().sorted(Comparator.comparing(LineTrResponse::getDate))
+                .collect(Collectors.toList());
     }
 
     @Override
