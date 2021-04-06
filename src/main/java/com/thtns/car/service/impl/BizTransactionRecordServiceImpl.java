@@ -132,7 +132,9 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
             Map<Integer, List<BizTransactionRecord>> typeCollect = v.stream()
                     .collect(Collectors.groupingBy(BizTransactionRecord::getType));
 
+            //充值
             HashMap<LocalDate, BigDecimal> profit = new HashMap<>();
+            //消费
             HashMap<LocalDate, BigDecimal> consumption = new HashMap<>();
 
             typeCollect.forEach((kt, vt) -> {

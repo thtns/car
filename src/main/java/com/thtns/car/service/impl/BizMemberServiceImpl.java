@@ -1,8 +1,16 @@
 package com.thtns.car.service.impl;
 
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.poi.excel.ExcelUtil;
-import cn.hutool.poi.excel.ExcelWriter;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -25,19 +33,10 @@ import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.service.IBizTransactionRecordService;
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import lombok.SneakyThrows;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * <p>
@@ -167,6 +166,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCardType(CardTypeEnum.stored.getValue());
                 record.setPrice(price);
                 record.setTradeTime(LocalDateTime.now());
+                record.setType(TransactionTypeEnum.recharge.getValue());
                 transactionRecordService.save(record);
             }
         }
