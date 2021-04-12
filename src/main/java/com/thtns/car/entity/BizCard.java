@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -38,6 +37,9 @@ public class BizCard extends BaseEntity {
 
     @ApiModelProperty(value = "有效期")
     private LocalDate validDate;
+
+    @ApiModelProperty(value = "汽车ID")
+    private Long carId;
 
 
 }

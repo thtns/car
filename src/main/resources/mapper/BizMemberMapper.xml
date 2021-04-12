@@ -6,7 +6,7 @@
 
 
         select distinct car_name
-        from biz_member
+        from biz_car
         where car_name is not null
 
         <if test="name!=null and name !=''">

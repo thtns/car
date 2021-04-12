@@ -1,7 +1,5 @@
 package com.thtns.car.entity;
 
-import com.thtns.car.enums.TransactionTypeEnum;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -45,5 +43,13 @@ public class BizTransactionRecord extends BaseEntity {
 
     @ApiModelProperty(value = "交易时间")
     private LocalDateTime tradeTime;
+
+    @ApiModelProperty("汽车名称")
+    private String carName;
+    @ApiModelProperty("车牌号")
+    private String numberPlate;
+
+    @ApiModelProperty("车ID")
+    private Long carId;
 
 }

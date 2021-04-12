@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.thtns.car.entity.BizCar;
 import com.thtns.car.entity.BizCard;
 import com.thtns.car.entity.BizMember;
 import com.thtns.car.entity.BizTransactionRecord;
@@ -15,6 +16,7 @@ import com.thtns.car.enums.TransactionTypeEnum;
 import com.thtns.car.helper.ServiceException;
 import com.thtns.car.mapper.BizMemberMapper;
 import com.thtns.car.request.*;
+import com.thtns.car.service.IBizCarService;
 import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.service.IBizTransactionRecordService;
@@ -44,6 +46,8 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     private IBizTransactionRecordService transactionRecordService;
 
     private IBizCardService bizCardService;
+
+    private IBizCarService bizCarService;
 
     @Override
     public Page<BizMember> list(ListBizMemberRequest request) {
@@ -82,11 +86,17 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         BizMember bizMember = new BizMember();
         bizMember.setName(request.getName());
         bizMember.setPhone(request.getPhone());
-        bizMember.setNumberPlate(request.getNumberPlate());
-        bizMember.setCarName(request.getCarName());
         save(bizMember);
+
+        BizCar bizCar = new BizCar();
+        bizCar.setCarName(request.getCarName());
+        bizCar.setNumberPlate(request.getNumberPlate());
+        bizCar.setMemberId(bizMember.getId());
+        bizCarService.save(bizCar);
+
         if (request.getCardRequest() != null) {
             BizCard card = new BizCard();
+            card.setCarId(bizCar.getId());
 
             if (CardTypeEnum.year.getValue().equals(request.getCardRequest().getCardType())) {
                 card.setType(CardTypeEnum.year.getValue());
@@ -106,6 +116,9 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCardId(card.getId());
                 record.setCardType(CardTypeEnum.num.getValue());
                 record.setType(TransactionTypeEnum.recharge.getValue());
+                record.setCarId(bizCar.getId());
+                record.setCarName(bizCar.getCarName());
+                record.setNumberPlate(bizCar.getNumberPlate());
                 transactionRecordService.save(record);
 
             }
@@ -125,6 +138,9 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCardType(CardTypeEnum.stored.getValue());
                 record.setPrice(balance);
                 record.setType(TransactionTypeEnum.recharge.getValue());
+                record.setCarId(bizCar.getId());
+                record.setCarName(bizCar.getCarName());
+                record.setNumberPlate(bizCar.getNumberPlate());
                 transactionRecordService.save(record);
 
             }
@@ -138,7 +154,6 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         BizMember member = getById(request.getId());
         member.setName(request.getName());
         member.setPhone(request.getPhone());
-        member.setNumberPlate(request.getNumberPlate());
         updateById(member);
     }
 
@@ -279,5 +294,10 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     @Autowired
     public void setBizCardService(IBizCardService bizCardService) {
         this.bizCardService = bizCardService;
+    }
+
+    @Autowired
+    public void setBizCarService(IBizCarService bizCarService) {
+        this.bizCarService = bizCarService;
     }
 }
