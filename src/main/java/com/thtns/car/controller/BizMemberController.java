@@ -3,24 +3,16 @@ package com.thtns.car.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.thtns.car.entity.BizCard;
 import com.thtns.car.entity.BizMember;
-import com.thtns.car.request.AddBizMemberRequest;
-import com.thtns.car.request.ApplyCardRequest;
-import com.thtns.car.request.CashRegisterRequest;
-import com.thtns.car.request.ListBizMemberRequest;
-import com.thtns.car.request.TransactionRequest;
-import com.thtns.car.request.UpdateBizMemberRequest;
+import com.thtns.car.request.*;
 import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.util.R;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.List;
 
 /**
@@ -111,4 +103,6 @@ public class BizMemberController {
     public void setBizCardService(IBizCardService bizCardService) {
         this.bizCardService = bizCardService;
     }
+
+
 }
