@@ -6,6 +6,7 @@ import com.thtns.car.request.AddCommodityRequest;
 import com.thtns.car.request.UpdateCommodityRequest;
 import com.thtns.car.service.IBizCommodityService;
 import com.thtns.car.util.R;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/biz-commodity")
+@Api(tags = "赠送服务")
 public class BizCommodityController {
 
 

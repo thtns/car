@@ -22,10 +22,10 @@ import java.util.List;
 public class BizCardServiceImpl extends ServiceImpl<BizCardMapper, BizCard> implements IBizCardService {
 
     @Override
-    public List<BizCard> listCard(Long memberId) {
+    public List<BizCard> listCard(Long carId) {
 
         LambdaQueryWrapper<BizCard> query = Wrappers.lambdaQuery(BizCard.class);
-        query.eq(BizCard::getMemberId, memberId);
+        query.eq(BizCard::getCarId, carId);
         query.orderByDesc(BizCard::getCreateTime);
         return list(query);
     }

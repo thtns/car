@@ -5,6 +5,7 @@ import com.thtns.car.entity.BizCommodityMember;
 import com.thtns.car.request.UpdateCommodityMemberRequest;
 import com.thtns.car.service.IBizCommodityMemberService;
 import com.thtns.car.util.R;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/biz-commodity-member")
+@Api(tags = "会员与赠送服务相关接口")
 public class BizCommodityMemberController {
 
     private IBizCommodityMemberService bizCommodityMemberService;

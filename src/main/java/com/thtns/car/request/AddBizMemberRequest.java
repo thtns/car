@@ -3,6 +3,8 @@ package com.thtns.car.request;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author : liuyj
  */
@@ -23,5 +25,9 @@ public class AddBizMemberRequest {
 
     @ApiModelProperty("业务卡种类")
     private AddBizCardRequest cardRequest;
+
+    @ApiModelProperty("赠送服务集合")
+    private List<AddBizCommodityRequest> commodityRequests;
+
 
 }

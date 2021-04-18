@@ -1,9 +1,11 @@
 package com.thtns.car.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.thtns.car.entity.BizCar;
 import com.thtns.car.entity.BizCard;
 import com.thtns.car.entity.BizMember;
 import com.thtns.car.request.*;
+import com.thtns.car.service.IBizCarService;
 import com.thtns.car.service.IBizCardService;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.util.R;
@@ -30,6 +32,7 @@ public class BizMemberController {
 
     private IBizMemberService bizMemberService;
     private IBizCardService bizCardService;
+    private IBizCarService bizCarService;
 
     @GetMapping("list")
     @ApiOperation(value = "列表", response = BizMember.class)
@@ -38,12 +41,20 @@ public class BizMemberController {
         return R.ok(list);
     }
 
-    @GetMapping("listCard/{memberId}")
+    @GetMapping("listCard/{carId}")
     @ApiOperation(value = "办理的卡", response = BizCard.class)
-    public R<List<BizCard>> listCard(@PathVariable Long memberId) {
-        List<BizCard> list = bizCardService.listCard(memberId);
+    public R<List<BizCard>> listCard(@PathVariable Long carId) {
+        List<BizCard> list = bizCardService.listCard(carId);
         return R.ok(list);
     }
+
+    @GetMapping("listCar/{memberId}")
+    @ApiOperation(value = "会员车辆", response = BizCar.class)
+    public R<List<BizCar>> listCar(@PathVariable Long memberId) {
+        List<BizCar> list = bizCarService.listCar(memberId);
+        return R.ok(list);
+    }
+
 
     @GetMapping("export")
     @ApiOperation(value = "会员数据导出")
@@ -80,6 +91,14 @@ public class BizMemberController {
         return R.ok();
     }
 
+    @PostMapping("addCar")
+    @ApiOperation("增加车辆")
+    public R<Void> addCar(@RequestBody AddCarRequest request) {
+        bizCarService.addCar(request);
+        return R.ok();
+    }
+
+
     @PutMapping("transaction")
     @ApiOperation("扣费")
     public R<Void> add(@RequestBody TransactionRequest request) {
@@ -104,5 +123,8 @@ public class BizMemberController {
         this.bizCardService = bizCardService;
     }
 
-
+    @Autowired
+    public void setBizCarService(IBizCarService bizCarService) {
+        this.bizCarService = bizCarService;
+    }
 }

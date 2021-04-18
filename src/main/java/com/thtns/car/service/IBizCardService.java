@@ -15,6 +15,6 @@ import java.util.List;
  */
 public interface IBizCardService extends IService<BizCard> {
 
-    List<BizCard> listCard(Long memberId);
+    List<BizCard> listCard(Long carId);
 
 }

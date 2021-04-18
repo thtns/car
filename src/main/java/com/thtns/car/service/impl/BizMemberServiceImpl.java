@@ -1,5 +1,6 @@
 package com.thtns.car.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
@@ -7,20 +8,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.thtns.car.entity.BizCar;
-import com.thtns.car.entity.BizCard;
-import com.thtns.car.entity.BizMember;
-import com.thtns.car.entity.BizTransactionRecord;
+import com.thtns.car.entity.*;
 import com.thtns.car.enums.CardTypeEnum;
 import com.thtns.car.enums.TransactionTypeEnum;
 import com.thtns.car.helper.ServiceException;
 import com.thtns.car.mapper.BizMemberMapper;
 import com.thtns.car.request.*;
-import com.thtns.car.service.IBizCarService;
-import com.thtns.car.service.IBizCardService;
-import com.thtns.car.service.IBizMemberService;
-import com.thtns.car.service.IBizTransactionRecordService;
+import com.thtns.car.service.*;
 import lombok.SneakyThrows;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +26,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +45,8 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     private IBizCardService bizCardService;
 
     private IBizCarService bizCarService;
+
+    private IBizCommodityMemberService bizCommodityMemberService;
 
     @Override
     public Page<BizMember> list(ListBizMemberRequest request) {
@@ -94,6 +93,24 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         bizCar.setMemberId(bizMember.getId());
         bizCarService.save(bizCar);
 
+
+        if (CollUtil.isNotEmpty(request.getCommodityRequests())) {
+            List<AddBizCommodityRequest> commodityRequests = request.getCommodityRequests();
+            ArrayList<BizCommodityMember> commodityMembers = Lists.newArrayList();
+            commodityRequests.forEach(addBizCommodityRequest -> {
+                BizCommodityMember bizCommodityMember = new BizCommodityMember();
+                bizCommodityMember.setMemberId(bizMember.getId());
+                bizCommodityMember.setCommodityName(addBizCommodityRequest.getName());
+                bizCommodityMember.setCommodityId(addBizCommodityRequest.getId());
+                bizCommodityMember.setNum(addBizCommodityRequest.getNum());
+                commodityMembers.add(bizCommodityMember);
+            });
+
+            bizCommodityMemberService.saveBatch(commodityMembers);
+
+        }
+
+
         if (request.getCardRequest() != null) {
             BizCard card = new BizCard();
             card.setCarId(bizCar.getId());
@@ -102,6 +119,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 card.setType(CardTypeEnum.year.getValue());
                 card.setValidDate(LocalDateTime.now().plusYears(1).toLocalDate());
                 card.setMemberId(bizMember.getId());
+                card.setCarId(bizCar.getId());
                 bizCardService.save(card);
             }
             if (CardTypeEnum.num.getValue().equals(request.getCardRequest().getCardType())) {
@@ -109,6 +127,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 card.setValidDate(LocalDateTime.now().plusYears(1).toLocalDate());
                 card.setNum(request.getCardRequest().getNum());
                 card.setMemberId(bizMember.getId());
+                card.setCarId(bizCar.getId());
                 bizCardService.save(card);
                 //添加交易记录
                 BizTransactionRecord record = new BizTransactionRecord();
@@ -129,6 +148,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 card.setBalance(balance);
                 card.setType(CardTypeEnum.stored.getValue());
                 card.setMemberId(bizMember.getId());
+                card.setCarId(bizCar.getId());
                 bizCardService.save(card);
 
                 //添加交易记录
@@ -192,10 +212,28 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
 
         BizCard card = new BizCard();
 
+        if (CollUtil.isNotEmpty(request.getCommodityRequests())) {
+            List<AddBizCommodityRequest> commodityRequests = request.getCommodityRequests();
+            ArrayList<BizCommodityMember> commodityMembers = Lists.newArrayList();
+            commodityRequests.forEach(addBizCommodityRequest -> {
+                BizCommodityMember bizCommodityMember = new BizCommodityMember();
+                bizCommodityMember.setMemberId(request.getMemberId());
+                bizCommodityMember.setCommodityName(addBizCommodityRequest.getName());
+                bizCommodityMember.setCommodityId(addBizCommodityRequest.getId());
+                bizCommodityMember.setNum(addBizCommodityRequest.getNum());
+                commodityMembers.add(bizCommodityMember);
+            });
+
+            bizCommodityMemberService.saveBatch(commodityMembers);
+
+        }
+
+
         if (CardTypeEnum.year.getValue().equals(request.getCardType())) {
             card.setType(CardTypeEnum.year.getValue());
             card.setValidDate(LocalDateTime.now().plusYears(1).toLocalDate());
             card.setMemberId(request.getMemberId());
+            card.setCarId(request.getCarId());
             bizCardService.save(card);
         }
         if (CardTypeEnum.num.getValue().equals(request.getCardType())) {
@@ -203,6 +241,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             card.setValidDate(LocalDateTime.now().plusYears(1).toLocalDate());
             card.setNum(request.getNum());
             card.setMemberId(request.getMemberId());
+            card.setCarId(request.getCarId());
             bizCardService.save(card);
             //添加交易记录
             BizTransactionRecord record = new BizTransactionRecord();
@@ -221,6 +260,8 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             card.setBalance(balance);
             card.setType(CardTypeEnum.stored.getValue());
             card.setMemberId(request.getMemberId());
+            card.setCarId(request.getCarId());
+
             bizCardService.save(card);
 
             //添加交易记录
@@ -299,5 +340,10 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     @Autowired
     public void setBizCarService(IBizCarService bizCarService) {
         this.bizCarService = bizCarService;
+    }
+
+    @Autowired
+    public void setBizCommodityMemberService(IBizCommodityMemberService bizCommodityMemberService) {
+        this.bizCommodityMemberService = bizCommodityMemberService;
     }
 }
