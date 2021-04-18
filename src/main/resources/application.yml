@@ -37,3 +37,10 @@ mybatis-plus:
     call-setters-on-nulls: true
 
 
+logging:
+  level:
+    root: info
+    com:
+      thtns:
+        car:
+          mapper: debug
