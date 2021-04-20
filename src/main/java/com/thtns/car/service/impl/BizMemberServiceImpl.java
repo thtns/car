@@ -75,6 +75,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         LambdaQueryWrapper<BizMember> query = Wrappers.lambdaQuery(BizMember.class);
         query.like(StringUtils.hasText(request.getName()), BizMember::getName, request.getName());
         query.like(StringUtils.hasText(request.getPhone()), BizMember::getPhone, request.getPhone());
+        query.eq(request.getId() != null, BizMember::getId, request.getId());
         query.orderByDesc(BizMember::getCreateTime);
         return query;
     }
