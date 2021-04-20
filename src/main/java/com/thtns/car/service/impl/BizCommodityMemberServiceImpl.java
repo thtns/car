@@ -28,7 +28,8 @@ public class BizCommodityMemberServiceImpl extends ServiceImpl<BizCommodityMembe
 
         LambdaQueryWrapper<BizCommodityMember> query = Wrappers.lambdaQuery(BizCommodityMember.class);
         query.eq(BizCommodityMember::getMemberId, memberId);
-        query.orderByDesc(BizCommodityMember::getCreateTime, BizCommodityMember::getNum);
+        query.gt(BizCommodityMember::getNum, 0);
+        query.orderByDesc(BizCommodityMember::getCreateTime);
         return list(query);
     }
 
