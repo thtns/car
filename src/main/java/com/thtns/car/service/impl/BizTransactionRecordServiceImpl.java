@@ -2,6 +2,7 @@ package com.thtns.car.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -20,10 +21,12 @@ import com.thtns.car.response.PieTrResponse;
 import com.thtns.car.response.bizTrExportResponse;
 import com.thtns.car.service.IBizMemberService;
 import com.thtns.car.service.IBizTransactionRecordService;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -72,6 +75,7 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
                 listBizTrResponse.setPrice(String.valueOf(t.getPrice()));
                 listBizTrResponse.setCardId(t.getCardId());
                 listBizTrResponse.setCardType(t.getCardType());
+                listBizTrResponse.setNumberPlate(t.getNumberPlate());
                 boolean present = Optional.ofNullable(t.getTradeTime()).isPresent();
                 if (present) {
                     listBizTrResponse.setTradeTime(
@@ -185,18 +189,20 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
     }
 
     @Override
+    @SneakyThrows
     public void export(ListBizTransactionRecordRequest request, HttpServletResponse response) {
 
         List<bizTrExportResponse> list = baseMapper.exportList(request);
-
         list.forEach(biztr -> biztr.setType(TransactionTypeEnum.parse(Integer.valueOf(biztr.getType())).toString()));
-
-        // TODO
-        ExcelWriter writer = ExcelUtil.getWriter("/Users/ifugle/record.xlsx");
-        writer.merge(7, "交易记录");
+        ExcelWriter writer = ExcelUtil.getWriter(true);
         writer.write(list, true);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment;filename=交易记录.xlsx");
+        writer.merge(7, "交易记录");
+        ServletOutputStream out = response.getOutputStream();
+        writer.flush(out, true);
         writer.close();
-
+        IoUtil.close(out);
     }
 
     @Autowired

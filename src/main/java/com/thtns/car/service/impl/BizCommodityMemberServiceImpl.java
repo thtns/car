@@ -44,4 +44,13 @@ public class BizCommodityMemberServiceImpl extends ServiceImpl<BizCommodityMembe
         commodityMember.setNum(commodityMember.getNum() - request.getNum());
         updateById(commodityMember);
     }
+
+    @Override
+    public BizCommodityMember getByMemberIdAndCommodityId(Long memberId, Long commodityId) {
+
+        LambdaQueryWrapper<BizCommodityMember> query = Wrappers.lambdaQuery(BizCommodityMember.class);
+        query.eq(BizCommodityMember::getMemberId, memberId);
+        query.eq(BizCommodityMember::getCommodityId, commodityId);
+        return getOne(query);
+    }
 }

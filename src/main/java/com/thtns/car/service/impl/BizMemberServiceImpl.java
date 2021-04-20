@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -139,6 +140,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCarId(bizCar.getId());
                 record.setCarName(bizCar.getCarName());
                 record.setNumberPlate(bizCar.getNumberPlate());
+                record.setTradeTime(LocalDateTime.now());
                 transactionRecordService.save(record);
 
             }
@@ -162,6 +164,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCarId(bizCar.getId());
                 record.setCarName(bizCar.getCarName());
                 record.setNumberPlate(bizCar.getNumberPlate());
+                record.setTradeTime(LocalDateTime.now());
                 transactionRecordService.save(record);
 
             }
@@ -182,7 +185,9 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     @Transactional(rollbackFor = Exception.class)
     public void cashRegister(CashRegisterRequest request) {
         BizCard bizCard = bizCardService.getById(request.getCardId());
+
         if (bizCard != null) {
+            BizCar bizCar = bizCarService.getById(bizCard.getCarId());
             if (CardTypeEnum.stored.getValue().equals(request.getCardType())) {
                 BigDecimal price = new BigDecimal(request.getPrice());
                 bizCard.setBalance(bizCard.getBalance().add(price));
@@ -196,6 +201,8 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setPrice(price);
                 record.setTradeTime(LocalDateTime.now());
                 record.setType(TransactionTypeEnum.recharge.getValue());
+                record.setCarName(bizCar.getCarName());
+                record.setNumberPlate(bizCar.getNumberPlate());
                 transactionRecordService.save(record);
             }
         }
@@ -212,20 +219,34 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     public void applyCard(ApplyCardRequest request) {
 
         BizCard card = new BizCard();
-
+        BizCar car = bizCarService.getById(request.getCarId());
         if (CollUtil.isNotEmpty(request.getCommodityRequests())) {
+
+
+            List<BizCommodityMember> bizCommodityMembers = bizCommodityMemberService.listCommodity(request.getMemberId());
+            List<Long> collect = bizCommodityMembers.stream().map(BizCommodityMember::getCommodityId).collect(Collectors.toList());
+
             List<AddBizCommodityRequest> commodityRequests = request.getCommodityRequests();
             ArrayList<BizCommodityMember> commodityMembers = Lists.newArrayList();
-            commodityRequests.forEach(addBizCommodityRequest -> {
-                BizCommodityMember bizCommodityMember = new BizCommodityMember();
-                bizCommodityMember.setMemberId(request.getMemberId());
-                bizCommodityMember.setCommodityName(addBizCommodityRequest.getName());
-                bizCommodityMember.setCommodityId(addBizCommodityRequest.getId());
-                bizCommodityMember.setNum(addBizCommodityRequest.getNum());
-                commodityMembers.add(bizCommodityMember);
-            });
 
-            bizCommodityMemberService.saveBatch(commodityMembers);
+
+            commodityRequests.forEach(addBizCommodityRequest -> {
+
+                BizCommodityMember bizCommodityMember = bizCommodityMemberService.getByMemberIdAndCommodityId(request.getMemberId(), addBizCommodityRequest.getId());
+
+                if (bizCommodityMember != null) {
+                    bizCommodityMember.setNum(bizCommodityMember.getNum() + addBizCommodityRequest.getNum());
+                    bizCommodityMemberService.updateById(bizCommodityMember);
+                } else {
+                    BizCommodityMember commodityMember = new BizCommodityMember();
+                    commodityMember.setMemberId(request.getMemberId());
+                    commodityMember.setCommodityName(addBizCommodityRequest.getName());
+                    commodityMember.setCommodityId(addBizCommodityRequest.getId());
+                    commodityMember.setNum(addBizCommodityRequest.getNum());
+                    bizCommodityMemberService.save(commodityMember);
+
+                }
+            });
 
         }
 
@@ -251,6 +272,8 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             record.setCardType(CardTypeEnum.num.getValue());
             record.setType(TransactionTypeEnum.recharge.getValue());
             record.setTradeTime(LocalDateTime.now());
+            record.setCarName(car.getCarName());
+            record.setNumberPlate(car.getNumberPlate());
             transactionRecordService.save(record);
 
         }
@@ -273,6 +296,8 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             record.setPrice(balance);
             record.setTradeTime(LocalDateTime.now());
             record.setType(TransactionTypeEnum.recharge.getValue());
+            record.setCarName(car.getCarName());
+            record.setNumberPlate(car.getNumberPlate());
             transactionRecordService.save(record);
 
         }
@@ -286,6 +311,9 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         if (request.getCardId() != null) {
 
             BizCard bizCard = bizCardService.getById(request.getCardId());
+
+            BizCar car = bizCarService.getById(bizCard.getCarId());
+
             if (CardTypeEnum.stored.getValue().equals(bizCard.getType())) {
                 BigDecimal cashPrice = new BigDecimal(request.getPrice());
                 //消费金额大于卡内余额
@@ -303,6 +331,9 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCardType(CardTypeEnum.stored.getValue());
                 record.setPrice(cashPrice);
                 record.setTradeTime(LocalDateTime.now());
+                record.setCarName(car.getCarName());
+                record.setNumberPlate(car.getNumberPlate());
+                record.setCarId(car.getId());
                 transactionRecordService.save(record);
 
             }
@@ -321,6 +352,9 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCardId(bizCard.getId());
                 record.setCardType(CardTypeEnum.num.getValue());
                 record.setTradeTime(LocalDateTime.now());
+                record.setCarName(car.getCarName());
+                record.setNumberPlate(car.getNumberPlate());
+                record.setCarId(car.getId());
                 transactionRecordService.save(record);
             }
 

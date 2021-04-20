@@ -22,4 +22,6 @@ public interface IBizCommodityMemberService extends IService<BizCommodityMember>
 
     void update(UpdateCommodityMemberRequest request);
 
+    BizCommodityMember getByMemberIdAndCommodityId(Long memberId, Long commodityId);
+
 }
