@@ -4,9 +4,10 @@
 
     <select id="exportList" resultType="com.thtns.car.response.bizTrExportResponse">
 
-        select btr.id, bm.name, bm.number_plate, btr.price, btr.type, btr.remark, btr.create_time
+        select btr.id, bm.name, bc.number_plate, btr.price, btr.type, btr.remark, btr.create_time
         from biz_transaction_record btr
         left join biz_member bm on btr.member_id = bm.id
+        left join biz_car bc on btr.car_id = bc.id
 
         <where>
             <if test="request.memberId!=null">
