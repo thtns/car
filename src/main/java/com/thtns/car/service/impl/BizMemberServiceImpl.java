@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         ExcelWriter writer = ExcelUtil.getWriter(true);
         writer.write(list, true);
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment;filename=会员信息.xlsx");
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("会员信息.xlsx", "UTF-8"));
         ServletOutputStream out = response.getOutputStream();
         writer.flush(out, true);
         writer.close();

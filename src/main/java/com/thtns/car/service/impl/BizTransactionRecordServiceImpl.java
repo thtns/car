@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -197,7 +198,8 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
         ExcelWriter writer = ExcelUtil.getWriter(true);
         writer.write(list, true);
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment;filename=交易记录.xlsx");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("交易记录.xlsx", "UTF-8"));
         writer.merge(7, "交易记录");
         ServletOutputStream out = response.getOutputStream();
         writer.flush(out, true);
