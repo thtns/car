@@ -287,6 +287,11 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             card.setMemberId(request.getMemberId());
             card.setCarId(request.getCarId());
 
+            boolean exists = bizCardService.exists(request.getMemberId(), CardTypeEnum.stored);
+            if (!exists) {
+                throw new ServiceException("已办理过储蓄卡请勿重复办理！");
+            }
+
             bizCardService.save(card);
 
             //添加交易记录

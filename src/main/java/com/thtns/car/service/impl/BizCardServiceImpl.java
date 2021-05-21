@@ -27,9 +27,20 @@ public class BizCardServiceImpl extends ServiceImpl<BizCardMapper, BizCard> impl
 
         LambdaQueryWrapper<BizCard> query = Wrappers.lambdaQuery(BizCard.class);
         query.eq(BizCard::getCarId, carId);
-        query.not(b -> b.eq(BizCard::getType, CardTypeEnum.num.getValue()).eq(BizCard::getNum, 0));
+//        query.not(b -> b.eq(BizCard::getType, CardTypeEnum.num.getValue()).eq(BizCard::getNum, 0));
+        query.or().eq(BizCard::getType, CardTypeEnum.stored.getValue());
         query.orderByDesc(BizCard::getCreateTime);
         List<BizCard> list = list(query);
         return list;
+    }
+
+    @Override
+    public boolean exists(Long memberId, CardTypeEnum cardTypeEnum) {
+
+        LambdaQueryWrapper<BizCard> query = Wrappers.lambdaQuery(BizCard.class);
+        query.eq(BizCard::getMemberId, memberId);
+        query.eq(BizCard::getType, cardTypeEnum.getValue());
+        int count = count(query);
+        return count < 1;
     }
 }
