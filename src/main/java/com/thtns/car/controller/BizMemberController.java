@@ -106,6 +106,15 @@ public class BizMemberController {
         return R.ok();
     }
 
+
+    @PutMapping("enable/{id}")
+    @ApiOperation("禁启用")
+    public R<Void> enable(@PathVariable Long id) {
+        bizMemberService.enable(id);
+        return R.ok();
+    }
+
+
     @GetMapping("getCarName/{name}")
     @ApiOperation(value = "列表", response = String.class)
     public R<List<String>> getCarName(@PathVariable String name) {

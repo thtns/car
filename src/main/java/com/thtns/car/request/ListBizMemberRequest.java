@@ -17,6 +17,9 @@ public class ListBizMemberRequest extends PageRequest {
     @ApiModelProperty("手机号码")
     private String phone;
 
+    @ApiModelProperty("禁启用")
+    private Boolean status;
+
     @ApiModelProperty("会员卡号")
     private Long id;
 

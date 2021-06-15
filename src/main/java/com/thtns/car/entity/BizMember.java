@@ -26,4 +26,7 @@ public class BizMember extends BaseEntity {
     @ApiModelProperty(value = "手机号码")
     private String phone;
 
+    @ApiModelProperty("是否启用 1：启用")
+    private Boolean status;
+
 }

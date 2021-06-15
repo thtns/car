@@ -2,6 +2,7 @@ package com.thtns.car.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -78,7 +79,8 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         query.like(StringUtils.hasText(request.getName()), BizMember::getName, request.getName());
         query.like(StringUtils.hasText(request.getPhone()), BizMember::getPhone, request.getPhone());
         query.eq(request.getId() != null, BizMember::getId, request.getId());
-        query.orderByDesc(BizMember::getCreateTime);
+        query.eq(request.getStatus() != null, BizMember::getStatus, request.getStatus());
+        query.orderByDesc(BizMember::getStatus, BizMember::getCreateTime);
         return query;
     }
 
@@ -366,6 +368,13 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
 
         }
 
+    }
+
+    @Override
+    public void enable(Long id) {
+        BizMember member = getById(id);
+        member.setStatus(BooleanUtil.negate(member.getStatus()));
+        updateById(member);
     }
 
     @Autowired
