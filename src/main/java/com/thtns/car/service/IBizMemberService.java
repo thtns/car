@@ -36,4 +36,6 @@ public interface IBizMemberService extends IService<BizMember> {
 
     void enable(Long id);
 
+    void revoke(RevokeRequest request);
+
 }

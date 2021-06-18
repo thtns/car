@@ -98,11 +98,25 @@ public class BizMemberController {
         return R.ok();
     }
 
+    @PostMapping("updateCar")
+    @ApiOperation("修改车辆信息")
+    public R<Void> updateCar(@RequestBody UpdateCarRequest request) {
+        bizCarService.updateCar(request);
+        return R.ok();
+    }
+
 
     @PutMapping("transaction")
     @ApiOperation("扣费")
     public R<Void> add(@RequestBody TransactionRequest request) {
         bizMemberService.transaction(request);
+        return R.ok();
+    }
+
+    @PutMapping("revoke")
+    @ApiOperation("撤销交易")
+    public R<Void> revoke(@RequestBody RevokeRequest request) {
+        bizMemberService.revoke(request);
         return R.ok();
     }
 

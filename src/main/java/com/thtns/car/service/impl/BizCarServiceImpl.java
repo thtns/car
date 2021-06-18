@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.thtns.car.entity.BizCar;
 import com.thtns.car.mapper.BizCarMapper;
 import com.thtns.car.request.AddCarRequest;
+import com.thtns.car.request.UpdateCarRequest;
 import com.thtns.car.service.IBizCarService;
 import org.springframework.stereotype.Service;
 
@@ -38,5 +39,13 @@ public class BizCarServiceImpl extends ServiceImpl<BizCarMapper, BizCar> impleme
         bizCar.setMemberId(request.getMemberId());
         bizCar.setNumberPlate(request.getNumberPlate());
         save(bizCar);
+    }
+
+    @Override
+    public void updateCar(UpdateCarRequest request) {
+        BizCar car = getById(request.getCarId());
+        car.setCarName(request.getCarName());
+        car.setNumberPlate(request.getNumberPlate());
+        updateById(car);
     }
 }

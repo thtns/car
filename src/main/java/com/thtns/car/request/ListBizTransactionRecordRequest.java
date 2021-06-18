@@ -25,4 +25,7 @@ public class ListBizTransactionRecordRequest extends PageRequest {
     @ApiModelProperty("结束时间")
     private String endDate;
 
+    @ApiModelProperty("carId")
+    private Long carId;
+
 }

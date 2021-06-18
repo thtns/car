@@ -18,4 +18,7 @@ public class TransactionRequest {
     @ApiModelProperty("卡ID")
     private Long cardId;
 
+    @ApiModelProperty("备注")
+    private String remark;
+
 }

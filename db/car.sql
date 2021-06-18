@@ -94,3 +94,6 @@ create table if not exists biz_transaction_record
 
 alter table biz_member
     add status bit default 1 null comment '状态 1:启用 0:未启用' after phone;
+
+alter table biz_transaction_record
+    add status int default 0 null comment '交易状态 1=正常 0=撤销' after number_plate;

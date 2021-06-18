@@ -3,6 +3,7 @@ package com.thtns.car.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.thtns.car.entity.BizCar;
 import com.thtns.car.request.AddCarRequest;
+import com.thtns.car.request.UpdateCarRequest;
 
 import java.util.List;
 
@@ -20,6 +21,8 @@ public interface IBizCarService extends IService<BizCar> {
     List<BizCar> listCar(Long memberId);
 
     void addCar(AddCarRequest request);
+
+    void updateCar(UpdateCarRequest request);
 
 
 }

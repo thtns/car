@@ -3,6 +3,7 @@ package com.thtns.car.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -342,6 +343,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCarName(car.getCarName());
                 record.setNumberPlate(car.getNumberPlate());
                 record.setCarId(car.getId());
+                record.setRemark(request.getRemark());
                 transactionRecordService.save(record);
 
             }
@@ -363,6 +365,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setCarName(car.getCarName());
                 record.setNumberPlate(car.getNumberPlate());
                 record.setCarId(car.getId());
+                record.setRemark(request.getRemark());
                 transactionRecordService.save(record);
             }
 
@@ -375,6 +378,25 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         BizMember member = getById(id);
         member.setStatus(BooleanUtil.negate(member.getStatus()));
         updateById(member);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void revoke(RevokeRequest request) {
+        BizTransactionRecord record = transactionRecordService.getById(request.getRecordId());
+        BizCard card = bizCardService.getById(record.getCardId());
+
+        if (CardTypeEnum.stored.getValue().equals(record.getCardType())) {
+            card.setBalance(card.getBalance().add(record.getPrice()));
+        }
+        if (CardTypeEnum.num.getValue().equals(record.getCardType())) {
+            card.setNum(card.getNum() + 1);
+        }
+        record.setStatus(0); //撤销
+        if (StringUtils.hasText(request.getRemark())) {
+            record.setRemark(record.getRemark() + StrUtil.format("{}撤销交易，备注：{}", LocalDateTime.now(), request.getRemark()));
+        }
+        transactionRecordService.updateById(record);
     }
 
     @Autowired
