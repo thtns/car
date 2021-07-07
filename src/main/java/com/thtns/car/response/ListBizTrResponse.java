@@ -1,5 +1,6 @@
 package com.thtns.car.response;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -21,4 +22,6 @@ public class ListBizTrResponse {
     private String tradeTime;
     private Integer cardType;
     private Long cardId;
+    @ApiModelProperty("交易状态  1=正常 0=撤销")
+    private Integer status;
 }

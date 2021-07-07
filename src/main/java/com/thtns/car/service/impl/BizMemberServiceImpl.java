@@ -29,8 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -206,10 +205,58 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 record.setTradeTime(LocalDateTime.now());
                 record.setType(TransactionTypeEnum.recharge.getValue());
                 record.setCarName(bizCar.getCarName());
+                record.setCarId(bizCar.getId());
                 record.setNumberPlate(bizCar.getNumberPlate());
+                record.setRemark(request.getRemark());
                 transactionRecordService.save(record);
             }
+
+            if (CollUtil.isNotEmpty(request.getCommodityRequests())) {
+                List<AddBizCommodityRequest> commodityRequests = request.getCommodityRequests();
+                ArrayList<BizCommodityMember> haveList = Lists.newArrayList();
+                ArrayList<BizCommodityMember> noList = Lists.newArrayList();
+
+                List<Long> collect = commodityRequests.stream().map(AddBizCommodityRequest::getId).collect(Collectors.toList());
+
+                Map<Long, List<AddBizCommodityRequest>> map = commodityRequests.stream().collect(Collectors.groupingBy(AddBizCommodityRequest::getId));
+
+                List<BizCommodityMember> bizCommodityMembers = bizCommodityMemberService.listByIds(collect);
+
+                bizCommodityMembers.forEach(biz -> commodityRequests.forEach(abr -> {
+                    if (biz.getCommodityId().equals(abr.getId())) {
+                        biz.setNum(biz.getNum() + abr.getNum());
+                        haveList.add(biz);
+                    }
+                }));
+
+
+                Set<Map.Entry<Long, List<AddBizCommodityRequest>>> set = map.entrySet();
+
+                Iterator<Map.Entry<Long, List<AddBizCommodityRequest>>> iterator = set.iterator();
+
+                while (iterator.hasNext()) {
+                    Map.Entry<Long, List<AddBizCommodityRequest>> next = iterator.next();
+
+                    Long key = next.getKey();
+                    if (collect.contains(key)) {
+                        //特别注意：不能使用map.remove(name)  否则会报同样的错误
+                        iterator.remove();
+                    }
+                }
+                map.forEach((k, v) -> {
+                    BizCommodityMember bizCommodityMember = new BizCommodityMember();
+                    bizCommodityMember.setMemberId(bizCar.getMemberId());
+                    bizCommodityMember.setCommodityName(v.get(0).getName());
+                    bizCommodityMember.setCommodityId(v.get(0).getId());
+                    bizCommodityMember.setNum(v.get(0).getNum());
+                    noList.add(bizCommodityMember);
+                });
+
+                bizCommodityMemberService.saveBatch(noList);
+                bizCommodityMemberService.updateBatchById(haveList);
+            }
         }
+
     }
 
     @Override
@@ -231,7 +278,6 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
             List<Long> collect = bizCommodityMembers.stream().map(BizCommodityMember::getCommodityId).collect(Collectors.toList());
 
             List<AddBizCommodityRequest> commodityRequests = request.getCommodityRequests();
-            ArrayList<BizCommodityMember> commodityMembers = Lists.newArrayList();
 
 
             commodityRequests.forEach(addBizCommodityRequest -> {
@@ -386,17 +432,31 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
         BizTransactionRecord record = transactionRecordService.getById(request.getRecordId());
         BizCard card = bizCardService.getById(record.getCardId());
 
-        if (CardTypeEnum.stored.getValue().equals(record.getCardType())) {
-            card.setBalance(card.getBalance().add(record.getPrice()));
+        //消费
+        if (TransactionTypeEnum.consumption.getValue().equals(record.getType())) {
+            if (CardTypeEnum.stored.getValue().equals(record.getCardType())) {
+                card.setBalance(card.getBalance().add(record.getPrice()));
+            }
+            if (CardTypeEnum.num.getValue().equals(record.getCardType())) {
+                card.setNum(card.getNum() + 1);
+            }
         }
-        if (CardTypeEnum.num.getValue().equals(record.getCardType())) {
-            card.setNum(card.getNum() + 1);
+
+        if (TransactionTypeEnum.recharge.getValue().equals(record.getType())) {
+            if (CardTypeEnum.stored.getValue().equals(record.getCardType())) {
+                card.setBalance(card.getBalance().subtract(record.getPrice()));
+            }
+            if (CardTypeEnum.num.getValue().equals(record.getCardType())) {
+                card.setNum(card.getNum() - 1);
+            }
         }
+
         record.setStatus(0); //撤销
         if (StringUtils.hasText(request.getRemark())) {
-            record.setRemark(record.getRemark() + StrUtil.format("{}撤销交易，备注：{}", LocalDateTime.now(), request.getRemark()));
+            record.setRemark("原有备注：" + record.getRemark() + " 。" + StrUtil.format("{}撤销交易，备注：{}", LocalDateTime.now(), request.getRemark()));
         }
         transactionRecordService.updateById(record);
+        bizCardService.updateById(card);
     }
 
     @Autowired

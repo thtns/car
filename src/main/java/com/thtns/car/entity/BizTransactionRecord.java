@@ -53,6 +53,6 @@ public class BizTransactionRecord extends BaseEntity {
     private Long carId;
 
     @ApiModelProperty("交易状态  1=正常 0=撤销")
-    private Integer status;
+    private Integer status = 1;
 
 }

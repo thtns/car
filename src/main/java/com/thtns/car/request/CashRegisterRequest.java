@@ -3,6 +3,8 @@ package com.thtns.car.request;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author : liuyj
  */
@@ -23,5 +25,8 @@ public class CashRegisterRequest {
 
     @ApiModelProperty("备注")
     private String remark;
+
+    @ApiModelProperty("赠送服务集合")
+    private List<AddBizCommodityRequest> commodityRequests;
 
 }

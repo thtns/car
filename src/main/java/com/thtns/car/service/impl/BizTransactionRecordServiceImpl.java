@@ -78,6 +78,8 @@ public class BizTransactionRecordServiceImpl extends ServiceImpl<BizTransactionR
                 listBizTrResponse.setCardId(t.getCardId());
                 listBizTrResponse.setCardType(t.getCardType());
                 listBizTrResponse.setNumberPlate(t.getNumberPlate());
+                listBizTrResponse.setStatus(t.getStatus());
+
                 boolean present = Optional.ofNullable(t.getTradeTime()).isPresent();
                 if (present) {
                     listBizTrResponse.setTradeTime(

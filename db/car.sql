@@ -97,3 +97,7 @@ alter table biz_member
 
 alter table biz_transaction_record
     add status int default 0 null comment '交易状态 1=正常 0=撤销' after number_plate;
+
+
+alter table biz_transaction_record
+    alter column status set default 1;
