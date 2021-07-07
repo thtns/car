@@ -51,6 +51,8 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
 
     private IBizCommodityMemberService bizCommodityMemberService;
 
+    private IBizCommodityService bizCommodityService;
+
     @Override
     public Page<BizMember> list(ListBizMemberRequest request) {
         Page<BizMember> bizMemberPage = new Page<>(request.getPageNo(), request.getPageSize());
@@ -216,11 +218,12 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 ArrayList<BizCommodityMember> haveList = Lists.newArrayList();
                 ArrayList<BizCommodityMember> noList = Lists.newArrayList();
 
+                //所有商品id
                 List<Long> collect = commodityRequests.stream().map(AddBizCommodityRequest::getId).collect(Collectors.toList());
-
+                //转换成map
                 Map<Long, List<AddBizCommodityRequest>> map = commodityRequests.stream().collect(Collectors.groupingBy(AddBizCommodityRequest::getId));
-
-                List<BizCommodityMember> bizCommodityMembers = bizCommodityMemberService.listByIds(collect);
+                //个人拥有的商品
+                List<BizCommodityMember> bizCommodityMembers = bizCommodityMemberService.listCommodity(bizCar.getMemberId());
 
                 bizCommodityMembers.forEach(biz -> commodityRequests.forEach(abr -> {
                     if (biz.getCommodityId().equals(abr.getId())) {
@@ -367,7 +370,7 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
 
             BizCard bizCard = bizCardService.getById(request.getCardId());
 
-            BizCar car = bizCarService.getById(bizCard.getCarId());
+            BizCar car = bizCarService.getById(request.getCarId());
 
             if (CardTypeEnum.stored.getValue().equals(bizCard.getType())) {
                 BigDecimal cashPrice = new BigDecimal(request.getPrice());
@@ -477,5 +480,10 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     @Autowired
     public void setBizCommodityMemberService(IBizCommodityMemberService bizCommodityMemberService) {
         this.bizCommodityMemberService = bizCommodityMemberService;
+    }
+
+    @Autowired
+    public void setBizCommodityService(IBizCommodityService bizCommodityService) {
+        this.bizCommodityService = bizCommodityService;
     }
 }

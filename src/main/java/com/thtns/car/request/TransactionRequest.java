@@ -21,4 +21,7 @@ public class TransactionRequest {
     @ApiModelProperty("备注")
     private String remark;
 
+    @ApiModelProperty("carId")
+    private Long carId;
+
 }

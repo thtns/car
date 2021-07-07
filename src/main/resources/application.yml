@@ -1,7 +1,5 @@
 server:
   port: 28080
-
-
 spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
@@ -13,8 +11,6 @@ spring:
     url: jdbc:mysql://111.231.88.244:3306/car?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
     hikari:
       pool-name: DatebookHikariCP
-  profiles:
-    active: dev
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   #实体扫描，多个package用逗号或者分号分隔
