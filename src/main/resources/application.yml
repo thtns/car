@@ -6,9 +6,9 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     username: root
-    password: h5463y6yyu6w
+    password: H5463y6yyu6w
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://111.231.88.244:3306/car?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+    url: jdbc:mysql://localhost:3306/car?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
     hikari:
       pool-name: DatebookHikariCP
 mybatis-plus:
