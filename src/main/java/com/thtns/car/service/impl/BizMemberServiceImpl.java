@@ -57,7 +57,12 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
     public Page<BizMember> list(ListBizMemberRequest request) {
         Page<BizMember> bizMemberPage = new Page<>(request.getPageNo(), request.getPageSize());
         LambdaQueryWrapper<BizMember> query = this.getWrapper(request);
-        return page(bizMemberPage, query);
+        Page<BizMember> page = page(bizMemberPage, query);
+        List<Long> collect = page.getRecords().stream().map(BaseEntity::getId).collect(Collectors.toList());
+        List<BizCard> bizCards = bizCardService.listByMemberIdAndCardType(collect, CardTypeEnum.stored);
+        Map<Long, BigDecimal> map = bizCards.stream().collect(Collectors.toMap(BizCard::getMemberId, BizCard::getBalance));
+        page.getRecords().forEach(b -> b.setMoney(map.get(b.getId())));
+        return page;
 
     }
 

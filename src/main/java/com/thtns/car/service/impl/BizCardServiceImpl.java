@@ -67,6 +67,16 @@ public class BizCardServiceImpl extends ServiceImpl<BizCardMapper, BizCard> impl
         return count < 1;
     }
 
+    @Override
+    public List<BizCard> listByMemberIdAndCardType(List<Long> memberIds, CardTypeEnum cardTypeEnum) {
+
+        LambdaQueryWrapper<BizCard> query = Wrappers.lambdaQuery(BizCard.class);
+        query.in(BizCard::getMemberId, memberIds);
+        query.eq(BizCard::getType, cardTypeEnum.getValue());
+
+        return list(query);
+    }
+
     @Autowired
     public void setBizMemberService(IBizMemberService bizMemberService) {
         this.bizMemberService = bizMemberService;

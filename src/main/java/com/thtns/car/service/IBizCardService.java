@@ -21,4 +21,8 @@ public interface IBizCardService extends IService<BizCard> {
 
     boolean exists(Long memberId, CardTypeEnum cardTypeEnum);
 
+
+    List<BizCard> listByMemberIdAndCardType(List<Long> memberIds, CardTypeEnum cardTypeEnum);
+
+
 }

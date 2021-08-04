@@ -1,9 +1,12 @@
 package com.thtns.car.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -28,5 +31,10 @@ public class BizMember extends BaseEntity {
 
     @ApiModelProperty("是否启用 1：启用")
     private Boolean status;
+
+    @ApiModelProperty("剩余金额")
+    @TableField(exist = false)
+    private BigDecimal money;
+
 
 }
