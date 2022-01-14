@@ -1,36 +1,60 @@
 package com.thtns.car.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.poi.excel.ExcelUtil;
-import cn.hutool.poi.excel.ExcelWriter;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.thtns.car.entity.*;
-import com.thtns.car.enums.CardTypeEnum;
-import com.thtns.car.enums.TransactionTypeEnum;
-import com.thtns.car.helper.ServiceException;
-import com.thtns.car.mapper.BizMemberMapper;
-import com.thtns.car.request.*;
-import com.thtns.car.service.*;
-import lombok.SneakyThrows;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.thtns.car.entity.BaseEntity;
+import com.thtns.car.entity.BizCar;
+import com.thtns.car.entity.BizCard;
+import com.thtns.car.entity.BizCommodityMember;
+import com.thtns.car.entity.BizMember;
+import com.thtns.car.entity.BizTransactionRecord;
+import com.thtns.car.enums.CardTypeEnum;
+import com.thtns.car.enums.TransactionTypeEnum;
+import com.thtns.car.helper.ServiceException;
+import com.thtns.car.mapper.BizMemberMapper;
+import com.thtns.car.request.AddBizCommodityRequest;
+import com.thtns.car.request.AddBizMemberRequest;
+import com.thtns.car.request.ApplyCardRequest;
+import com.thtns.car.request.CashRegisterRequest;
+import com.thtns.car.request.ListBizMemberRequest;
+import com.thtns.car.request.RevokeRequest;
+import com.thtns.car.request.TransactionRequest;
+import com.thtns.car.request.UpdateBizMemberRequest;
+import com.thtns.car.service.IBizCarService;
+import com.thtns.car.service.IBizCardService;
+import com.thtns.car.service.IBizCommodityMemberService;
+import com.thtns.car.service.IBizCommodityService;
+import com.thtns.car.service.IBizMemberService;
+import com.thtns.car.service.IBizTransactionRecordService;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import lombok.SneakyThrows;
 
 /**
  * <p>
@@ -224,42 +248,58 @@ public class BizMemberServiceImpl extends ServiceImpl<BizMemberMapper, BizMember
                 ArrayList<BizCommodityMember> noList = Lists.newArrayList();
 
                 //所有商品id
-                List<Long> collect = commodityRequests.stream().map(AddBizCommodityRequest::getId).collect(Collectors.toList());
+                List<Long> collect = commodityRequests.stream()
+                        .map(AddBizCommodityRequest::getId)
+                        .collect(Collectors.toList());
                 //转换成map
-                Map<Long, List<AddBizCommodityRequest>> map = commodityRequests.stream().collect(Collectors.groupingBy(AddBizCommodityRequest::getId));
+                Map<Long, List<AddBizCommodityRequest>> map = commodityRequests.stream()
+                        .collect(Collectors.groupingBy(AddBizCommodityRequest::getId));
                 //个人拥有的商品
-                List<BizCommodityMember> bizCommodityMembers = bizCommodityMemberService.listCommodity(bizCar.getMemberId());
+                List<BizCommodityMember> bizCommodityMembers = bizCommodityMemberService.listCommodity(
+                        bizCar.getMemberId());
 
-                bizCommodityMembers.forEach(biz -> commodityRequests.forEach(abr -> {
-                    if (biz.getCommodityId().equals(abr.getId())) {
-                        biz.setNum(biz.getNum() + abr.getNum());
-                        haveList.add(biz);
+                if (CollUtil.isNotEmpty(bizCommodityMembers)) {
+
+                    bizCommodityMembers.forEach(biz -> commodityRequests.forEach(abr -> {
+                        if (biz.getCommodityId().equals(abr.getId())) {
+                            biz.setNum(biz.getNum() + abr.getNum());
+                            haveList.add(biz);
+                        }
+                    }));
+
+                    Set<Map.Entry<Long, List<AddBizCommodityRequest>>> set = map.entrySet();
+
+                    Iterator<Map.Entry<Long, List<AddBizCommodityRequest>>> iterator = set.iterator();
+
+                    while (iterator.hasNext()) {
+                        Map.Entry<Long, List<AddBizCommodityRequest>> next = iterator.next();
+
+                        Long key = next.getKey();
+                        if (collect.contains(key)) {
+                            //特别注意：不能使用map.remove(name)  否则会报同样的错误
+                            iterator.remove();
+                        }
                     }
-                }));
+                    map.forEach((k, v) -> {
+                        BizCommodityMember bizCommodityMember = new BizCommodityMember();
+                        bizCommodityMember.setMemberId(bizCar.getMemberId());
+                        bizCommodityMember.setCommodityName(v.get(0).getName());
+                        bizCommodityMember.setCommodityId(v.get(0).getId());
+                        bizCommodityMember.setNum(v.get(0).getNum());
+                        noList.add(bizCommodityMember);
+                    });
 
+                } else {
+                    commodityRequests.forEach(r -> {
+                        BizCommodityMember bizCommodityMember = new BizCommodityMember();
+                        bizCommodityMember.setMemberId(bizCar.getMemberId());
+                        bizCommodityMember.setCommodityName(r.getName());
+                        bizCommodityMember.setCommodityId(r.getId());
+                        bizCommodityMember.setNum(r.getNum());
+                        noList.add(bizCommodityMember);
 
-                Set<Map.Entry<Long, List<AddBizCommodityRequest>>> set = map.entrySet();
-
-                Iterator<Map.Entry<Long, List<AddBizCommodityRequest>>> iterator = set.iterator();
-
-                while (iterator.hasNext()) {
-                    Map.Entry<Long, List<AddBizCommodityRequest>> next = iterator.next();
-
-                    Long key = next.getKey();
-                    if (collect.contains(key)) {
-                        //特别注意：不能使用map.remove(name)  否则会报同样的错误
-                        iterator.remove();
-                    }
+                    });
                 }
-                map.forEach((k, v) -> {
-                    BizCommodityMember bizCommodityMember = new BizCommodityMember();
-                    bizCommodityMember.setMemberId(bizCar.getMemberId());
-                    bizCommodityMember.setCommodityName(v.get(0).getName());
-                    bizCommodityMember.setCommodityId(v.get(0).getId());
-                    bizCommodityMember.setNum(v.get(0).getNum());
-                    noList.add(bizCommodityMember);
-                });
-
                 bizCommodityMemberService.saveBatch(noList);
                 bizCommodityMemberService.updateBatchById(haveList);
             }
